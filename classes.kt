@@ -8,26 +8,34 @@ object Input {
                 "/exit" -> break
                 "/help" -> println("The program calculates the sum of numbers")
                 "" -> continue
-                else -> if (numString != null) plusMinus(numString)
+                else -> if (numString != null) testString(numString)
             }
         }
     }
 
-    private fun plusMinus(numString: String) {
-        var numList = List(0){""}
+    private fun testString(numString: String) {
         if ("/.*".toRegex().matches(numString)) println("Unknown command")
-        else {
-            numList = numString
-                .replace("\\s{2,}".toRegex(), " ")
-                .replace("--".toRegex(), "+")
-                .replace("[+]{2,}".toRegex(), "+")
-                .replace("\\+- ".toRegex(), "+ -")
-                .replace(" - ".toRegex(), " + -")
-                .split(" + ")
+        else if("^[a-zA-Z]+.*".toRegex().matches(numString)) {
+            checkVal(numString)
         }
+        else plusMinus(numString)
+
+    }
+
+    private fun checkVal(numString: String) {
+        if("^[a-zA-Z]+\\s*=\\s*\\d+".toRegex().matches(numString)){}
+    }
+
+    private fun plusMinus(numString: String) {
+        val numList = numString
+            .replace("\\s{2,}".toRegex(), " ")
+            .replace("--".toRegex(), "+")
+            .replace("[+]{2,}".toRegex(), "+")
+            .replace("\\+- ".toRegex(), "+ -")
+            .replace(" - ".toRegex(), " + -")
+            .split(" + ")
         try {
-            var result = numList.sumOf { it.trim().toInt() }
-            println(result)
+            println(numList.sumOf { it.trim().toInt() })
         } catch (e: Exception) {
             println("Invalid expression")
         }
