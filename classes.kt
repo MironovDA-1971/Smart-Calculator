@@ -15,11 +15,8 @@ object Input {
 
     private fun testString(numString: String) {
         if ("/.*".toRegex().matches(numString)) println("Unknown command")
-        else if("^[a-zA-Z]+.*".toRegex().matches(numString)) {
-            checkVal(numString)
-        }
+        else if("^[a-zA-Z]+.*".toRegex().matches(numString)) checkVal(numString)
         else plusMinus(numString)
-
     }
 
     private fun checkVal(numString: String) {
