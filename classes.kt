@@ -9,30 +9,55 @@ object Input {
 
     fun checkInput() {
         while (true) {
-            when (val numString = readLine()?.trim()) {
+            when (val string = readLine()?.trim()) {
                 "/exit" -> break
                 "/help" -> println("The program calculates the sum of numbers")
                 "" -> continue
-                else -> if (numString != null) badCommandOrExpression(numString)
+                else -> if (string != null) badCommandOrExpression(string)
             }
         }
     }
+    private fun trimPlus(string: String) = string
+        .replace(Regex("\\s{2,}"), " ")
+        .replace(Regex("--"), "+")
+        .replace(Regex("[+]{2,}"), "+")
+        .replace(Regex("\\+- "), " - ")
+        .replace(" + -", " - ")
 
-    private fun badCommandOrExpression(numString: String) {
-        if ("^/.*".toRegex().matches(numString)) errorMessage(5)
-        else checkExpression(numString.trim())
+    private fun addSpace(string: String) = string
+        .replace(Regex("\\d+"), "\$0 ")
+        .replace(Regex("[-+*/)(]"), "\$0 ")
+        .replace(Regex("[a-zA-Z]+"), "\$0 ")
+        .replace("  ", " ")
+
+    private fun badCommandOrExpression(string: String) {
+        if ("^/.*".toRegex().matches(string)) errorMessage(5)
+        else checkExpression(trimPlus(string))
     }
 
-    private fun checkExpression(numString: String) {
-        if(".*=.*".toRegex().matches(numString)) varEqualsVal(numString)
-        else if ("^-?\\d+$".toRegex().matches(numString)) println(numString)
-        else if (".*[-+*/].*".toRegex().matches(numString)) getValueOfVar(numString)
-        else if (numString !in mapList.keys) errorMessage(3)
-        else println(mapList[numString])
+    private fun checkExpression(string: String) {
+        var stop = false
+        if (".*[)(].*".toRegex().matches(string)) stop = countBracket(string)
+        if (!stop) {
+            if(".*=.*".toRegex().matches(string)) varEqualsVal(string)
+            else if ("^-?\\d+$".toRegex().matches(string)) println(string)
+            else if (".*[-+*/].*".toRegex().matches(string)) getValueOfVar(string)
+            else if (string !in mapList.keys) errorMessage(3)
+            else println(mapList[string])
+        }
     }
 
-    private fun varEqualsVal(numString: String) {
-        val (b,c) = numString.split("=")
+    private fun countBracket(string: String): Boolean {
+        var stop = false
+        if (string.split("(").lastIndex != string.split(")").lastIndex) {
+            stop = true
+            errorMessage(4)
+        }
+        return stop
+    }
+
+    private fun varEqualsVal(string: String) {
+        val (b,c) = string.split("=")
         if(!aZRegex.matches(b.trim())) errorMessage(1)
         else if(!aZRegex.matches(c.trim()) && !digRegex.matches(c.trim())) errorMessage(2)
         else if (mapList.containsKey(c.trim())) mapList += b.trim() to mapList[c.trim()].toString()
@@ -40,37 +65,28 @@ object Input {
         else  errorMessage(3)
     }
 
-    private fun getValueOfVar(numString: String) {
+    private fun getValueOfVar(string: String) {
         var setFlag = listOf<Boolean>()
         var newStr = ""
-        numString.split(" ").toSet().map {
+        string.split(" ").toSet().map {
             if (aZRegex.matches(it)) setFlag = listOf(it in mapList.keys)
         }
         if (false !in setFlag) {
-            numString.split(" ").map {
+            string.split(" ").map {
                 newStr += if (aZRegex.matches(it))  "${mapList[it]} " else "$it "
             }
             sumOfVar(newStr)
         } else errorMessage(3)
     }
 
-    private fun sumOfVar(numString: String) {
-
-        val string = numString
-            .replace("\\s{2,}".toRegex(), " ")
-            .replace("--".toRegex(), "+")
-            .replace("[+]{2,}".toRegex(), "+")
-            .replace("\\+- ".toRegex(), " - ")
-            .replace(" + -".toRegex(), " - ")
-           // .replace("\\+- ".toRegex(), "+ -")
-           // .replace(" - ".toRegex(), " + -")
-           // .split(" + ")
+    private fun sumOfVar(string: String) {
         try {
-           // println(numList.sumOf { it.trim().toInt() })
-            println("string = $string")
-            Postfix().parseExpression(string)
+        var spacedString = trimPlus(string)
+            spacedString = addSpace(spacedString)
+            Postfix().parseExpression(spacedString)
         } catch (e: Exception) {
-            errorMessage(4)
+           // println(e)
+           errorMessage(4)
         }
     }
 
