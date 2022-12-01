@@ -1,6 +1,7 @@
 package calculator
 
-import kotlin.math.pow
+import java.math.BigInteger
+// import kotlin.math.pow
 
 class Postfix  {
 
@@ -67,9 +68,9 @@ class Postfix  {
     }
 
     private fun calcPostFix() {
-        val stack = mutableListOf<Int>()
+        val stack = mutableListOf<BigInteger>()
         for (item in queue) {
-            if (Regex("-?\\d+").matches(item)) stack.add(item.toInt())
+            if (Regex("-?\\d+").matches(item)) stack.add(item.toBigInteger())
             when (item) {
                 "+" -> {
                     stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] + stack.last()
@@ -90,11 +91,12 @@ class Postfix  {
                     stack[stack.lastIndex - 1] = stack[stack.lastIndex - 1] - stack.last()
                     stack.removeAt(stack.lastIndex)
                 }
-
+                /*
                 "^" -> {
                     stack[stack.lastIndex - 1] = (stack[stack.lastIndex - 1].toDouble().pow(stack.last())).toInt()
                     stack.removeAt(stack.lastIndex)
                 }
+                 */
             }
         }
 
